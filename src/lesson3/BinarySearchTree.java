@@ -9,9 +9,10 @@ import org.jetbrains.annotations.Nullable;
 public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> implements CheckableSortedSet<T> {
 
     private static class Node<T> {
-        final T value;
+        T value;
         Node<T> left = null;
         Node<T> right = null;
+        Node<T> per;
 
         Node(T value) {
             this.value = value;
@@ -75,14 +76,17 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         Node<T> newNode = new Node<>(t);
         if (closest == null) {
             root = newNode;
+            root.per = null;
         }
         else if (comparison < 0) {
             assert closest.left == null;
-            closest.left = newNode;
+            closest.left = new Node(t);
+            closest.left.per = closest;
         }
         else {
             assert closest.right == null;
-            closest.right = newNode;
+            closest.right = new Node(t);
+            closest.right.per = closest;
         }
         size++;
         return true;
@@ -99,10 +103,56 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      *
      * Средняя
      */
+    //трудоёмкость О(n)
+    //память 0(n)
+    private void toTransplant( Node<T> start, Node<T> toChange) {
+        Node<T> save = start.per;
+        if (start.per == null) {
+            root = toChange;
+        } else if (start == start.per.left) {
+            start.per.left = toChange;
+        } else {
+            start.per.right = toChange;
+        }
+        if (toChange != null) toChange.per = save;
+    }
+
+    private Node<T> treeMin(Node<T> start) {
+        while (start.left != null) {
+            start = start.left;
+        }
+        return start;
+    }
+
     @Override
     public boolean remove(Object o) {
-        // TODO
-        throw new NotImplementedError();
+        Node<T> oNode = find((T)o);
+        if (oNode.value != (T) o || oNode.value == null) return false;
+        if (oNode.left == null && oNode.right != null) {
+            toTransplant(oNode, oNode.right);
+            size--;
+            return true;
+        } else if (oNode.right == null && oNode.left != null) {
+            toTransplant(oNode, oNode.left);
+            size--;
+            return true;
+        } else if (oNode.right == null) {
+            toTransplant(oNode, null);
+            size--;
+            return true;
+        } else {
+            Node<T> y = treeMin(oNode.right);
+            if (y.per != oNode) {
+                toTransplant(y, y.right);
+                y.right = oNode.right;
+                y.right.per = y;
+            }
+            toTransplant(oNode, y);
+            y.left = oNode.left;
+            y.left.per = y;
+            size--;
+            return true;
+        }
     }
 
     @Nullable

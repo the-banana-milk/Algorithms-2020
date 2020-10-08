@@ -12,6 +12,49 @@ import kotlin.system.measureNanoTime
 abstract class AbstractTaskTests : AbstractFileTests() {
 
     protected fun sortTimes(sortTimes: (String, String) -> Unit) {
+        try {//added
+            sortTimes("input/time_in4", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                     12:40:31 AM
+                     07:26:57 AM
+                     10:00:03 AM
+                     01:15:19 PM
+                     01:15:19 PM
+                     07:56:14 PM
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            sortTimes("input/time_in2.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                     12:00:00 AM
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {//added
+            sortTimes("input/time_in5", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                     12:40:31 AM
+                     07:26:57 AM
+                     10:00:03 AM
+                     01:15:19 PM
+                     01:15:19 PM
+                     07:56:14 PM
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
         try {
             sortTimes("input/time_in1.txt", "temp.txt")
             assertFileContent(
@@ -48,6 +91,34 @@ abstract class AbstractTaskTests : AbstractFileTests() {
     }
 
     protected fun sortAddresses(sortAddresses: (String, String) -> Unit) {
+        try { //added
+            sortAddresses("input/addr_in4", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+Арбалетская 4 - Казанский Брячеслав
+Доброжирская 5 - Иванов Пафнутий, Складческая Видана
+Сигизмундзкая 50 - Кузнецов Велерад
+Тоталетарная 1 - Преподобный Владимир
+""".trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try { //added
+            sortAddresses("input/addr_in5", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+Армейская 4 - Маяковский Владимир
+Армейская 5 - Меркури Фреди
+Литературная 3 - Гиппиус Зинаида
+Математическая 3 - Вейерштрасс Карл, Кантор Георг
+""".trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
         try {
             sortAddresses("input/addr_in1.txt", "temp.txt")
             assertFileContent(

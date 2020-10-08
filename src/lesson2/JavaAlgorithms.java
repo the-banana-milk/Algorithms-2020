@@ -3,6 +3,8 @@ package lesson2;
 import kotlin.NotImplementedError;
 import kotlin.Pair;
 
+import java.util.ArrayList;
+
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
     /**
@@ -97,8 +99,37 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
-    static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
+    //трудоёмкость О(N^2)
+//память O(N^2)
+    static public String longestCommonSubstring(String first, String second) {
+        int [][] table = new int[first.length()][second.length()];
+        StringBuilder result = new StringBuilder();
+        int saveI = 0;
+        int saveJ = 0;
+        int lenStr = 0;
+        for (int i = 0; i < first.length(); i++) {
+            for (int j = 0; j < second.length(); j++) {
+                if (first.charAt(i) == second.charAt(j)) {
+                    table[i][j] += 1;
+                    if(i != 0 && j != 0) {
+                        table[i][j] += table[i-1][j-1];
+                    }
+                    if (lenStr < table[i][j] && table[i][j] != 1) {
+                        saveI = i;
+                        saveJ = j;
+                        lenStr = table[i][j];
+                    }
+                } else {
+                    table[i][j] = 0;
+                }
+            }
+        }
+        while (saveI >= 0 && saveJ >= 0 && table[saveI][saveJ] != 0) {
+            result.append(first.charAt(saveI));
+            saveI--;
+            saveJ--;
+        }
+        return result.reverse().toString();
     }
 
     /**
@@ -111,7 +142,20 @@ public class JavaAlgorithms {
      * Справка: простым считается число, которое делится нацело только на 1 и на себя.
      * Единица простым числом не считается.
      */
+    //Трудоёмкость О(NlogN)
+//Память О(N^2)
     static public int calcPrimesNumber(int limit) {
-        throw new NotImplementedError();
+        int count = 0;
+        boolean primeOrNot[] = new boolean[limit + 1];
+        for (int ind = 2; ind < limit + 1; ind++) primeOrNot[ind] = true;
+        for (int i = 2; i < limit + 1; i++) {
+            for (int j = 2*i; j < limit + 1 && j > 0; j+= i) {
+                primeOrNot[j] = false;
+            }
+        }
+        for (int prime = 2; prime < limit + 1; prime++) {
+            if (primeOrNot[prime]) count++;
+        }
+        return count;
     }
 }
