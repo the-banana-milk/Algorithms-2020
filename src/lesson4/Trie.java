@@ -49,7 +49,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     @Override
     public boolean contains(Object o) {
         String element = (String) o;
-        return findNode(withZero(element)) != null;
+        return findNode(element) != null;
     }
 
     @Override
@@ -125,9 +125,9 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         Trie a = new Trie();
         a.add("Yana");
         a.add("Ruby");
-       /* a.add("Java");
+        a.add("Java");
         a.add("Jafar");
-        a.add("Jerry");
+        /*a.add("Jerry");
         a.add("Jer");
         a.add("Jel");*/
         a.iterator();
@@ -156,9 +156,9 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             ArrayList<StringBuilder> c = new ArrayList<StringBuilder>();
             if (tree.children.isEmpty()) {
                 StringBuilder b = new StringBuilder();
-                ArrayList<Character> check = getChar(tree);
-                if (check.size() == 1 && check.get(0) != null) {
-                    b.append(check.get(0));
+                Character check = getChar(tree);
+                if (check != null) {
+                    b.append(check);
                     a.add(new StringBuilder(b));
                     return a;
                 }
@@ -167,17 +167,11 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                     a.addAll(getAllStrings(i));
                 }
                 if (tree.leaf && !tree.children.isEmpty()) a.add(new StringBuilder());
-                for (StringBuilder i: a) {
-                    ArrayList<Character> check = getChar(tree);
-                    if (check.size() == 1 && check.get(0) != null) {
+                Character check = getChar(tree);
+                    for (StringBuilder i : a) {
+                        if (check != null) {
                         StringBuilder d = new StringBuilder();
-                        d.append(check.get(0));
-                        if (i != null) {
-                            c.add(d.append(i));
-                        }
-                    } else if (check.size() > 1) {
-                        StringBuilder d = new StringBuilder();
-                        d.append(check.get(0));
+                        d.append(check);
                         if (i != null) {
                             c.add(d.append(i));
                         }
@@ -187,10 +181,11 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             return c;
         }
 
-        private ArrayList<Character> getChar(Node tree) {
-            ArrayList<Character> result = new ArrayList<>();
+        private Character getChar(Node tree) {
+            Character result = null;
             for (Map.Entry<Character, Node> forKey: tree.children.entrySet()) {
-                result.add(forKey.getKey());
+                //Character saveOrNot = forKey.getKey();
+                result=forKey.getKey();
             }
             return result;
         }
@@ -238,6 +233,10 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
         @Override
         public String next() {
+            Node currentNode = root;
+            while (currentNode.children != null) {
+                //fornext += currentNode.children.size();
+            }
             cursor++;
             if (cursor > size || cursor < 0) throw new IllegalArgumentException();
             return findAllStrings.get(lastIter = cursor - 1).toString();

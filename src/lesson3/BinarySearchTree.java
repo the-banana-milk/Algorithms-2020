@@ -12,7 +12,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         T value;
         Node<T> left = null;
         Node<T> right = null;
-        Node<T> per;
+        Node<T> par;
 
         Node(T value) {
             this.value = value;
@@ -76,17 +76,17 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         Node<T> newNode = new Node<>(t);
         if (closest == null) {
             root = newNode;
-            root.per = null;
+            root.par = null;
         }
         else if (comparison < 0) {
             assert closest.left == null;
             closest.left = new Node(t);
-            closest.left.per = closest;
+            closest.left.par = closest;
         }
         else {
             assert closest.right == null;
             closest.right = new Node(t);
-            closest.right.per = closest;
+            closest.right.par = closest;
         }
         size++;
         return true;
@@ -106,15 +106,15 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     //трудоёмкость О(n)
     //память 0(n)
     private void toTransplant( Node<T> start, Node<T> toChange) {
-        Node<T> save = start.per;
-        if (start.per == null) {
+        Node<T> save = start.par;
+        if (start.par == null) {
             root = toChange;
-        } else if (start == start.per.left) {
-            start.per.left = toChange;
+        } else if (start == start.par.left) {
+            start.par.left = toChange;
         } else {
-            start.per.right = toChange;
+            start.par.right = toChange;
         }
-        if (toChange != null) toChange.per = save;
+        if (toChange != null) toChange.par = save;
     }
 
     private Node<T> treeMin(Node<T> start) {
@@ -142,14 +142,14 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             return true;
         } else {
             Node<T> y = treeMin(oNode.right);
-            if (y.per != oNode) {
+            if (y.par != oNode) {
                 toTransplant(y, y.right);
                 y.right = oNode.right;
-                y.right.per = y;
+                y.right.par = y;
             }
             toTransplant(oNode, y);
             y.left = oNode.left;
-            y.left.per = y;
+            y.left.par = y;
             size--;
             return true;
         }
@@ -168,6 +168,20 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     }
 
     public class BinarySearchTreeIterator implements Iterator<T> {
+        private int cursor; // идекс для следующего, что выводим
+        private int lastIter = -1;// индекс удаляемого
+        private final ArrayList<T> findAllNum = getAllNum(root);
+        private final int startSize = findAllNum.size();
+        private final ArrayList<T> wasRemoved = new ArrayList<>();
+
+        private ArrayList<T> getAllNum (Node start) {
+            if (size == 0) return new ArrayList<>();
+            ArrayList<T> result = new ArrayList<>();
+            if (start.left != null) result.addAll(getAllNum(start.left));
+            if (start.value != null) result.add((T) start.value);
+            if (start.right != null) result.addAll(getAllNum(start.right));
+            return result;
+        }
 
         private BinarySearchTreeIterator() {
             // Добавьте сюда инициализацию, если она необходима.
@@ -183,10 +197,11 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          *
          * Средняя
          */
+        //трудоёмкость - О(1)
+        //память - О(1)
         @Override
         public boolean hasNext() {
-            // TODO
-            throw new NotImplementedError();
+            return cursor != startSize;
         }
 
         /**
@@ -203,9 +218,15 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Средняя
          */
         @Override
+        //трудоёмкость-О(n)
+        //память - O(n)
         public T next() {
-            // TODO
-            throw new NotImplementedError();
+            if (cursor >= startSize || cursor < 0) {
+                throw new NoSuchElementException();
+            }
+            cursor++;
+            lastIter = cursor - 1;
+            return findAllNum.get(lastIter);
         }
 
         /**
@@ -221,9 +242,16 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Сложная
          */
         @Override
+        //трудоёмкость О(n)
+        //память 0(1)
         public void remove() {
-            // TODO
-            throw new NotImplementedError();
+            if (lastIter < 0) throw new IllegalStateException();
+            T elem = findAllNum.get(lastIter);
+            if (wasRemoved.size() == 0 || !wasRemoved.contains(elem)) {
+                BinarySearchTree.this.remove(elem);
+                wasRemoved.add(elem);
+                lastIter = -1;
+            }
         }
     }
 

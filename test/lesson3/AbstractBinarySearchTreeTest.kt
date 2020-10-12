@@ -106,7 +106,7 @@ abstract class AbstractBinarySearchTreeTest {
         }
     }
 
-    protected fun doRemoveTest() {
+    protected fun doRemoveTest() { //тесты полные
         implementationTest { create().remove(0) }
         val random = Random()
         for (iteration in 1..100) {
@@ -164,7 +164,7 @@ abstract class AbstractBinarySearchTreeTest {
         }
     }
 
-    protected fun doIteratorTest() {
+    protected fun doIteratorTest() { //тесты полные
         implementationTest { create().iterator().hasNext() }
         implementationTest { create().iterator().next() }
         val random = Random()
@@ -200,14 +200,14 @@ abstract class AbstractBinarySearchTreeTest {
                     "BinarySearchTreeIterator doesn't traverse the tree correctly."
                 )
             }
-            assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
+            assertFailsWith<java.util.NoSuchElementException>("Something was supposedly returned after the elements ended") {
                 binaryIter.next()
             }
             println("All clear!")
         }
     }
 
-    protected fun doIteratorRemoveTest() {
+    protected fun doIteratorRemoveTest() { //тесты полные
         implementationTest { create().iterator().remove() }
         val random = Random()
         for (iteration in 1..100) {
