@@ -1,6 +1,7 @@
 package lesson1;
 
 import kotlin.NotImplementedError;
+import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -9,8 +10,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.sql.Time;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaTasks {
@@ -81,24 +82,23 @@ public class JavaTasks {
         }
         return result.toString();
     }
-    static public void sortTimes (String inputName, String outputName ) {
+    static public void sortTimes (String inputName, String outputName ) throws IOException {
         try(PrintWriter fileToWrite = new PrintWriter(outputName);
             BufferedReader newFile = Files.newBufferedReader(new File(inputName).toPath())) {
-            ArrayList<Integer> listOfSec = new ArrayList<>();
+            List<Integer> listOfSec = new ArrayList<>();
             for (String line; (line = newFile.readLine()) != null; ) {
                 listOfSec.add(changeStringToNumber(line));
-            }int[] need = new int[listOfSec.size()];
+            }
+            int[] need = new int[listOfSec.size()];
             int ind = 0;
             for (Integer i: listOfSec) {
                 need[ind] = i;
                 ind ++;
             }
-            Sorts.insertionSort(need);
+            Sorts.heapSort(need);
             for (Integer j: need) {
                 fileToWrite.println(changeNumderToString(j));
             }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
         }
     }
 
@@ -133,95 +133,89 @@ public class JavaTasks {
     public static class Addresses implements Comparable {
         private String address;
         private Integer numberOfstreet;
-        private String owner;
-    public Addresses ( String str, Integer num, String owner) {
-        this.address = str;
-        this.owner = owner;
-        this.numberOfstreet = num;
-    }
+        public Addresses ( String str, Integer num) {
+            this.address = str;
+            this.numberOfstreet = num;
+        }
 
-    public String getAddress() {
-        return address;
-    }
+        public String getAddress() {
+            return address;
+        }
 
-    public Integer getNumberOfstreet() {
-        return numberOfstreet;
-    }
+        public Integer getNumberOfstreet() {
+            return numberOfstreet;
+        }
 
-    @Override
-    public int compareTo(@NotNull Object o) {
-        Addresses a = (Addresses) o;
-        int whoIsMore = address.compareTo(a.address);
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Addresses addresses = (Addresses) o;
+            return address.equals(addresses.address) &&
+                    numberOfstreet.equals(addresses.numberOfstreet);
+        }
 
-        if (whoIsMore > 0) {
-            return 1;
-        } else if (whoIsMore == 0) {
-            if (numberOfstreet > a.numberOfstreet) {
+        @Override
+        public int hashCode() {
+            return Objects.hash(address, numberOfstreet);
+        }
+
+        @Override
+        public int compareTo(@NotNull Object o) {
+            Addresses a = (Addresses) o;
+            int whoIsMore = address.compareTo(a.address);
+            if (whoIsMore > 0) {
                 return 1;
-            } else if (numberOfstreet < a.numberOfstreet) {
-                return -1;
-            } else return 0;
+            } else if (whoIsMore == 0) {
+                if (numberOfstreet > a.numberOfstreet) {
+                    return 1;
+                } else if (numberOfstreet < a.numberOfstreet) {
+                    return -1;
+                } else return -1;
+            } else return -1;
+        }
 
-        } else return -1;
-    }
-}
-
-    static public void sortAddresses ( String inputName, String outputName ) {
-        try (BufferedReader newFile = Files.newBufferedReader (new File(inputName).toPath());
-             PrintWriter fileToWrite = new PrintWriter(new File(outputName), StandardCharsets.UTF_8)) {
-            ArrayList<String> streets = new ArrayList<String>();
-            ArrayList<ArrayList<String>> owners = new ArrayList<>();
-            ArrayList<Addresses> toSort= new ArrayList<>();
-            for (String line; (line = newFile.readLine()) != null; ) {
-                String[] toTake = line.split(" - ");
-                if (!streets.contains(toTake[1])) {
-                    String[] numAndStr = toTake[1].split(" ");
-                    toSort.add(new Addresses(numAndStr[0], Integer.parseInt(numAndStr[1]), toTake[0]));
-                    streets.add(toTake[1]);
-                    ArrayList<String> toAdd = new ArrayList<>();
-                    toAdd.add(toTake[0]);
-                    owners.add(toAdd);
-                } else {
-                    int ind = streets.indexOf(toTake[1]);
-                    owners.get(ind).add(toTake[0]);
-                }
-            }
-
-            Addresses[] array = new Addresses[toSort.size()];
-            int indOfClass = 0;
-            for (Addresses i : toSort) {
-                array[indOfClass] = i;
-                indOfClass++;
-            }
-
-            Sorts.insertionSort(array);
-            for (ArrayList<String> person : owners) {
-                Collections.sort(person);
-            }
-
-            for (int i = 0; i< array.length; i++) {
-                StringBuilder line = new StringBuilder();
-                line.append(array[i].address);
-                line.append(" ");
-                line.append(array[i].numberOfstreet);
-                int indToTakeOwn = streets.indexOf(line.toString());
-                line.append(" - ");
-                int checking = 0 ;
-                for ( String person : owners.get(indToTakeOwn)) {
-                    checking += 1 ;
-                    line.append(person) ;
-                    if ( checking != owners.get(indToTakeOwn).size()) {
-                        line.append( ", " ) ;
-                    }
-                }
-                fileToWrite.println(line.toString());
-            }
-
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+        @Override
+        public String toString() {
+            return address + ' ' +
+                    numberOfstreet;
         }
     }
 
+    static public void sortAddresses ( String inputName, String outputName ) throws IOException {
+        try (BufferedReader newFile = Files.newBufferedReader (new File(inputName).toPath());
+             PrintWriter fileToWrite = new PrintWriter(new File(outputName), StandardCharsets.UTF_8)) {
+            List<Addresses> toSort= new ArrayList<>();
+            Map<Addresses, List<String>> streetsAndTen= new HashMap<>();
+            for (String line; (line = newFile.readLine()) != null; ) {
+                String[] toTake = line.split(" - ");
+                String[] numAndStr = toTake[1].split(" ");
+                Addresses newOne = new Addresses(numAndStr[0], Integer.parseInt(numAndStr[1]));
+                if (!streetsAndTen.containsKey(newOne)) {
+                    toSort.add(newOne);
+                    streetsAndTen.put(newOne, new ArrayList<>());
+                }
+                streetsAndTen.get(newOne).add(toTake[0]);
+            }
+
+            toSort.sort(Addresses::compareTo);
+
+            for (Addresses ad: toSort) {
+                StringBuilder line = new StringBuilder();
+                List<String> names = streetsAndTen.get(ad);
+                names.sort(String::compareTo);
+                line.append(ad.toString());
+                line.append(" - ");
+                int i = 1;
+                for (String nameOfOwner: names) {
+                    line.append(nameOfOwner);
+                    if (i != names.size()) line.append(", ");
+                    i++;
+                }
+                fileToWrite.println(line);
+            }
+        }
+    }
     /**
      * Сортировка температур
      *
@@ -252,6 +246,8 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
+    //Трудоёмкость О(n)
+    //Ресурсоёмкость О(n)
     private static double[] sorting(@NotNull ArrayList<Double> list, int lim) {
         int[] count = new int[lim * 10 + 1];
         for (Double element: list) {
@@ -269,7 +265,7 @@ public class JavaTasks {
         }
         return out;
     }
-    static public void sortTemperatures(String inputName, String outputName) {
+    static public void sortTemperatures(String inputName, String outputName) throws IOException {
         try (BufferedReader newFile = Files.newBufferedReader(new File(inputName).toPath());
              PrintWriter fileToWrite = new PrintWriter(new File(outputName), StandardCharsets.UTF_8)) {
 
@@ -292,9 +288,6 @@ public class JavaTasks {
             for (int j = 0; j < resultPosit.length ; j++) {
                 fileToWrite.println(resultPosit[j]);
             }
-
-        }catch (IOException e) {
-            System.out.println(e.getMessage());
         }
     }
 
@@ -327,7 +320,7 @@ public class JavaTasks {
      * 2
      * 2
      */
-    static public void sortSequence(String inputName, String outputName) {
+    static public void sortSequence(String inputName, String outputName) throws IOException {
         throw new NotImplementedError();
     }
 

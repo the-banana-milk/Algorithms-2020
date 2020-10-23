@@ -27,19 +27,19 @@ class BinarySearchTreeTest : AbstractBinarySearchTreeTest() {
     }
 
     @Test
-    @Tag("5")
+    @Tag("5")//тесты полные
     fun removeTestJava() {
         doRemoveTest()
     }
 
     @Test
-    @Tag("5")
+    @Tag("5")//тесты полные
     fun iteratorTestJava() {
         doIteratorTest()
     }
 
     @Test
-    @Tag("8")
+    @Tag("8")//тесты полные
     fun iteratorRemoveTestJava() {
         doIteratorRemoveTest()
     }

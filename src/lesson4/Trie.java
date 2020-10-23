@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import kotlin.NotImplementedError;
+import lesson3.BinarySearchTree;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +15,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
     private static class Node {
         Map<Character, Node> children = new LinkedHashMap<>();
+        Character nameOfNode;
         boolean leaf;
     }
 
@@ -57,18 +59,22 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         Node current = root;
         boolean modified = false;
         int a = 0;
+        Character pevLetter = null;
         for (char character : withZero(element).toCharArray()) {
             Node child = current.children.get(character);
             if (child != null) {
-                if (a != element.length() - 1)child.leaf = false;
+                if (a != withZero(element).length() - 1) child.leaf = false;
                 else child.leaf = true;
+                pevLetter = character;
                 current = child;
             } else {
                 modified = true;
                 Node newChild = new Node();
-                if (a != element.length() - 1)newChild.leaf = false;
+                if (a != withZero(element).length() - 1) newChild.leaf = false;
                 else newChild.leaf = true;
+                newChild.nameOfNode = pevLetter;
                 current.children.put(character, newChild);
+                pevLetter = character;
                 current = newChild;
             }
             a++;
@@ -85,53 +91,26 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         Node start = root;
         Node saveNodeToDel = null;
         Character remLet = null;
-        int lenOfWord = elem.length();
-        int lenCheck = 0;
-        boolean isDeleted = false;
-        for (Character a: elem.toCharArray()) {
+        for (Character a: withZero(elem).toCharArray()) {
             if(start.children.containsKey(a)) {
                 if(saveNodeToDel == null) {
                     saveNodeToDel = start;
                     remLet = a;
                 }
-                lenCheck++;
                 start = start.children.get(a);
             } else break;
-            if (start.leaf && lenCheck == lenOfWord -1) {
-                isDeleted = true;
-                start.leaf = false;
-                break;
-            }
             if (start.children.size() > 1) {
                 saveNodeToDel = null;
             }
         }
-        if (!isDeleted && saveNodeToDel != null) {
+        if (saveNodeToDel != null) {
             saveNodeToDel.children.remove(remLet);
-            return true;
-        }
-        /*Node current = findNode(element);
-        if (current == null) return false;
-        if (current.children.remove((char) 0) != null) {
             size--;
             return true;
         }
-        return false;*/
         return false;
     }
-    public static void main(String[] args) {
-        /*ArrayList<Integer> a = new ArrayList();
-        System.out.println(a.iterator().hasNext());*/
-        Trie a = new Trie();
-        a.add("Yana");
-        a.add("Ruby");
-        a.add("Java");
-        a.add("Jafar");
-        /*a.add("Jerry");
-        a.add("Jer");
-        a.add("Jel");*/
-        a.iterator();
-    }
+
     /**
      * Итератор для префиксного дерева
      *
@@ -149,6 +128,8 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         private int cursor; // идекс для следующего, что выводим
         private int lastIter = -1;// индекс удаляемого
         private final ArrayList<StringBuilder> findAllStrings = getAllStrings(root);//список строк, хранящихся в дереве
+        private final int startSize = findAllStrings.size();
+        private final ArrayList<String> wasRemoved = new ArrayList<>();
 
         private ArrayList<StringBuilder> getAllStrings(Node tree) {
             if (size == 0) return new ArrayList<StringBuilder>();
@@ -156,7 +137,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             ArrayList<StringBuilder> c = new ArrayList<StringBuilder>();
             if (tree.children.isEmpty()) {
                 StringBuilder b = new StringBuilder();
-                Character check = getChar(tree);
+                Character check = tree.nameOfNode;
                 if (check != null) {
                     b.append(check);
                     a.add(new StringBuilder(b));
@@ -166,80 +147,47 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                 for (Node i: tree.children.values()) {
                     a.addAll(getAllStrings(i));
                 }
-                if (tree.leaf && !tree.children.isEmpty()) a.add(new StringBuilder());
-                Character check = getChar(tree);
+                if (tree.leaf && tree.children.isEmpty()) a.add(new StringBuilder());
+                Character check = tree.nameOfNode;
+                if (check != null) {
                     for (StringBuilder i : a) {
-                        if (check != null) {
                         StringBuilder d = new StringBuilder();
                         d.append(check);
-                        if (i != null) {
-                            c.add(d.append(i));
-                        }
+                        c.add(d.append(i));
                     }
-                }
+                } else return a;
             }
             return c;
         }
 
-        private Character getChar(Node tree) {
-            Character result = null;
-            for (Map.Entry<Character, Node> forKey: tree.children.entrySet()) {
-                //Character saveOrNot = forKey.getKey();
-                result=forKey.getKey();
-            }
-            return result;
-        }
-
         @Override
+        //Ресурсоёмкость О(1)
+        //Трудоёмкость O(1)
         public boolean hasNext() {
-            return cursor != size;
+            return cursor != startSize;
         }
-
+        //Ресурсоёмкость O(n)
+        //Трудоёмкость O(n)
         @Override
         public void remove() {
-            Node start = root;
-            Node saveNodeToDel = null;
             if (lastIter < 0) throw new IllegalStateException();
             String elem = findAllStrings.get(lastIter).toString();
-            Character remLet = null;
-            int lenOfWord = elem.length();
-            int lenCheck = 0;
-            boolean isDeleted = false;
-            for (Character a: elem.toCharArray()) {
-                if(start.children.containsKey(a)) {
-                    if(saveNodeToDel == null) {
-                        saveNodeToDel = start;
-                        remLet = a;
-                    }
-                    lenCheck++;
-                    start = start.children.get(a);
-                } else break;
-                if (start.leaf && lenCheck == lenOfWord -1) {
-                    isDeleted = true;
-                    start.leaf = false;
-                    break;
-                }
-                if (start.children.size() > 1) {
-                    saveNodeToDel = null;
-                }
+            if (wasRemoved.size() == 0 || !wasRemoved.contains(elem)) {
+                Trie.this.remove(elem);
+                wasRemoved.add(elem);
+                lastIter = -1;
             }
-            if (!isDeleted && saveNodeToDel != null) {
-                saveNodeToDel.children.remove(remLet);
-            }
-            size--;
-            cursor = lastIter;
-            lastIter = lastIter - 1;
         }
-
+        //Ресурсоёмкость O(n)
+        //Трудоёмкость O(n)
         @Override
         public String next() {
-            Node currentNode = root;
-            while (currentNode.children != null) {
-                //fornext += currentNode.children.size();
+            if (cursor >= startSize || cursor < 0) {
+                throw new NoSuchElementException();
             }
             cursor++;
-            if (cursor > size || cursor < 0) throw new IllegalArgumentException();
-            return findAllStrings.get(lastIter = cursor - 1).toString();
+            lastIter = cursor - 1;
+            return findAllStrings.get(lastIter).toString();
         }
     }
 

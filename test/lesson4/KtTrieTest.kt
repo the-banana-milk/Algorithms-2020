@@ -15,13 +15,13 @@ class KtTrieTest : AbstractTrieTest() {
     }
 
     @Test
-    @Tag("7")
+    @Tag("7")//тесты полные
     fun iteratorTest() {
         doIteratorTest()
     }
 
     @Test
-    @Tag("8")
+    @Tag("8")//тесты полные
     fun iteratorRemoveTest() {
         doIteratorRemoveTest()
     }
