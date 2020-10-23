@@ -128,7 +128,7 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    //Трудоёмкость О(N^2)
+    //Трудоёмкость О(NlogN)
 //память О(N)
     public static class Addresses implements Comparable {
         private String address;
