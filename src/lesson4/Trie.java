@@ -16,7 +16,6 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     private static class Node {
         Map<Character, Node> children = new LinkedHashMap<>();
         Character nameOfNode;
-        boolean leaf;
     }
 
     private Node root = new Node();
@@ -58,26 +57,20 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     public boolean add(String element) {
         Node current = root;
         boolean modified = false;
-        int a = 0;
         Character pevLetter = null;
         for (char character : withZero(element).toCharArray()) {
             Node child = current.children.get(character);
             if (child != null) {
-                if (a != withZero(element).length() - 1) child.leaf = false;
-                else child.leaf = true;
                 pevLetter = character;
                 current = child;
             } else {
                 modified = true;
                 Node newChild = new Node();
-                if (a != withZero(element).length() - 1) newChild.leaf = false;
-                else newChild.leaf = true;
                 newChild.nameOfNode = pevLetter;
                 current.children.put(character, newChild);
                 pevLetter = character;
                 current = newChild;
             }
-            a++;
         }
         if (modified) {
             size++;
@@ -147,7 +140,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                 for (Node i: tree.children.values()) {
                     a.addAll(getAllStrings(i));
                 }
-                if (tree.leaf && tree.children.isEmpty()) a.add(new StringBuilder());
+                if (tree.children.isEmpty()) a.add(new StringBuilder());
                 Character check = tree.nameOfNode;
                 if (check != null) {
                     for (StringBuilder i : a) {
