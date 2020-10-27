@@ -52,6 +52,11 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         return false;
     }
 
+    public static void main(String[] args) {
+        OpenAddressingSet<Integer> a = new OpenAddressingSet<>(3);
+        a.add(3);
+        a.add(45);
+    }
     /**
      * Добавление элемента в таблицу.
      *
@@ -62,6 +67,9 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      * Обычно Set не предполагает ограничения на размер и подобных контрактов,
      * но в данном случае это было введено для упрощения кода.
      */
+    private class Deleted extends Object {
+        private final Object a = null; 
+    }
     @Override
     public boolean add(T t) {
         int startingIndex = startingIndex(t);
@@ -95,7 +103,27 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
+        T elem = (T) o;
+        int startingIndex = startingIndex(elem);
+        int index = startingIndex;
+        Object current = storage[index];
+        while (current != null && !current.equals(elem)) {
+            /*if (current.equals(elem)) {
+                //remove
+                return true;
+            }*/
+            index = (index + 1) % capacity;
+            if (index == startingIndex) {
+                return false;
+            }
+            current = storage[index];
+        }
+        if (current != null) {
+            storage[index] = new Deleted();
+            size--;
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -56,6 +56,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         return closest != null && t.compareTo(closest.value) == 0;
     }
 
+
     /**
      * Добавление элемента в дерево
      *
