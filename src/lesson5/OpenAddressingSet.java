@@ -66,16 +66,17 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      * Бросает исключение (IllegalStateException) в случае переполнения таблицы.
      * Обычно Set не предполагает ограничения на размер и подобных контрактов,
      * но в данном случае это было введено для упрощения кода.
+     * && !current.equals(new Deleted())
      */
-    private class Deleted extends Object {
+    /*private class Deleted extends Object {
         private final Object a = null; 
-    }
+    }*/
     @Override
     public boolean add(T t) {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null && !current.equals(new Deleted())) {
+        while (current != null) {
             if (current.equals(t)) {
                 return false;
             }
@@ -103,7 +104,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @Override
     public boolean remove(Object o) {
-        T elem = (T) o;
+        return super.remove(o);
+        /*T elem = (T) o;
         int startingIndex = startingIndex(elem);
         int index = startingIndex;
         Object current = storage[index];
@@ -119,9 +121,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
             size--;
             return true;
         }
-        return false;
+        return false;*/
     }
-    
 
     /**
      * Создание итератора для обхода таблицы
