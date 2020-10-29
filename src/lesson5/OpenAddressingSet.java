@@ -52,11 +52,11 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         return false;
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         OpenAddressingSet<Integer> a = new OpenAddressingSet<>(3);
         a.add(3);
         a.add(45);
-    }
+    }*/
     /**
      * Добавление элемента в таблицу.
      *
@@ -75,7 +75,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && !current.equals(new Deleted())) {
             if (current.equals(t)) {
                 return false;
             }
@@ -108,10 +108,6 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int index = startingIndex;
         Object current = storage[index];
         while (current != null && !current.equals(elem)) {
-            /*if (current.equals(elem)) {
-                //remove
-                return true;
-            }*/
             index = (index + 1) % capacity;
             if (index == startingIndex) {
                 return false;
