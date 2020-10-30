@@ -175,6 +175,13 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("Control set: $controlSet")
             val binarySet = create()
+            binarySet += controlSet.last()//добавлено
+            val iter = binarySet.iterator() // случай, если один элемент в дереве
+            iter.next()
+            assertFalse {
+                iter.hasNext()
+            }
+            binarySet.clear()
             assertFalse(
                 binarySet.iterator().hasNext(),
                 "Iterator of an empty tree should not have any next elements."
@@ -223,6 +230,13 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("Initial set: $controlSet")
             val binarySet = create()
+            binarySet += controlSet.last()//добавлено
+            val iter = binarySet.iterator() // случай, если один элемент в дереве
+            iter.next()
+            iter.remove()
+            assertTrue {
+                binarySet.size == 0
+            }
             for (element in controlSet) {
                 binarySet += element
             }

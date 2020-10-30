@@ -125,7 +125,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         }
         return start;
     }
-
+    
     @Override
     public boolean remove(Object o) {
         Node<T> oNode = find((T)o);
@@ -230,9 +230,9 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
                 if (next != null) next = treeMin(next);
                 return next;
             } else {
-                if (next == next.par.left) {
+                if (next != root && next == next.par.left) {
                     next = next.par;
-                }else if (next == next.par.right) {
+                }else if (next != root && next == next.par.right) {
                     T value = next.par.value;
                     do {
                         next = next.par;

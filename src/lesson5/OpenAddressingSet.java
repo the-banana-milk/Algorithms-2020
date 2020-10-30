@@ -52,11 +52,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         return false;
     }
 
-    /*public static void main(String[] args) {
-        OpenAddressingSet<Integer> a = new OpenAddressingSet<>(3);
-        a.add(3);
-        a.add(45);
-    }*/
+
     /**
      * Добавление элемента в таблицу.
      *
