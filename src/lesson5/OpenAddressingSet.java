@@ -3,9 +3,7 @@ package lesson5;
 import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.AbstractSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
 
@@ -52,7 +50,17 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         return false;
     }
 
-
+    public static void main(String[] args) {
+        new ArrayList<Integer>();
+        OpenAddressingSet a = new OpenAddressingSet(7);
+        a.add("fgh");
+        a.add("ksh");
+        Iterator<Object> b = a.iterator();
+        System.out.println(b.next());
+        System.out.println(b.next());
+        System.out.println(b.next());
+        System.out.println(b.hasNext());
+    }
     /**
      * Добавление элемента в таблицу.
      *
@@ -64,15 +72,29 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      * но в данном случае это было введено для упрощения кода.
      * && !current.equals(new Deleted())
      */
-    /*private class Deleted extends Object {
-        private final Object a = null; 
-    }*/
+    private class Deleted extends Object {
+        private final Object a = null;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Deleted deleted = (Deleted) o;
+            return Objects.equals(a, deleted.a);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(a);
+        }
+    }
+
     @Override
     public boolean add(T t) {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && !current.equals(new Deleted())) {
             if (current.equals(t)) {
                 return false;
             }
@@ -100,8 +122,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
-        /*T elem = (T) o;
+        //return super.remove(o);
+        T elem = (T) o;
         int startingIndex = startingIndex(elem);
         int index = startingIndex;
         Object current = storage[index];
@@ -117,7 +139,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
             size--;
             return true;
         }
-        return false;*/
+        return false;
     }
 
     /**
@@ -133,7 +155,60 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new OASIter();
+        /*// 
+        throw new NotImplementedError();*/
+    }
+
+    private class OASIter implements Iterator {
+        private int curs; //следующий для возвращения
+        private int lastRet = -1;// последний возращённый
+        private int toStop;
+        private final int startSize = size;
+        @Override
+        public void remove() {
+            /*if (lastRet < 0) {
+                throw new IllegalStateException();
+            }
+            storage[lastRet] = new Deleted();
+            size--;
+            //OpenAddressingSet.this.remove(storage[lastRet]);
+            curs = lastRet;
+            lastRet = -1;*/
+        }
+        //трудоёмкость О(n)
+        //память O(1)
+        @Override
+        public Object next() {
+            if (lastRet == curs || curs == capacity) {
+                throw new IllegalStateException();
+            }
+            if (toStop == 0 || lastRet < 0) findIndOfNext();
+            lastRet = curs;
+            if (toStop != startSize)findIndOfNext();
+            return storage[lastRet];
+        }
+
+        private void findIndOfNext() {
+            int ind = curs;
+            if (toStop == 0 && curs == 0 && lastRet == -1) {
+                while (storage[ind] == null && ind < capacity) {
+                    ind++;
+                }
+            } else {
+                do {
+                    ind++;
+                } while (ind < capacity && (storage[ind] == null || storage[ind].equals(new Deleted())));
+            }
+            if (lastRet < 0) toStop--;
+            toStop++;
+            curs = ind;
+        }
+        //трудоёмкость О(1)
+        //память O(1)
+        @Override
+        public boolean hasNext() {
+            return toStop != startSize;
+        }
     }
 }
