@@ -49,18 +49,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         }
         return false;
     }
-
-    public static void main(String[] args) {
-        new ArrayList<Integer>();
-        OpenAddressingSet a = new OpenAddressingSet(7);
-        a.add("fgh");
-        a.add("ksh");
-        Iterator<Object> b = a.iterator();
-        System.out.println(b.next());
-        System.out.println(b.next());
-        System.out.println(b.next());
-        System.out.println(b.hasNext());
-    }
+    
     /**
      * Добавление элемента в таблицу.
      *
@@ -156,7 +145,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @Override
     public Iterator<T> iterator() {
         return new OASIter();
-        /*// 
+        /*//
         throw new NotImplementedError();*/
     }
 
@@ -165,17 +154,20 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         private int lastRet = -1;// последний возращённый
         private int toStop;
         private final int startSize = size;
+
+        //трудоёмкость О(1)
+        //память O(1)
         @Override
         public void remove() {
-            /*if (lastRet < 0) {
+            if (lastRet < 0) {
                 throw new IllegalStateException();
             }
             storage[lastRet] = new Deleted();
             size--;
-            //OpenAddressingSet.this.remove(storage[lastRet]);
             curs = lastRet;
-            lastRet = -1;*/
+            lastRet = -1;
         }
+
         //трудоёмкость О(n)
         //память O(1)
         @Override
@@ -192,7 +184,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         private void findIndOfNext() {
             int ind = curs;
             if (toStop == 0 && curs == 0 && lastRet == -1) {
-                while (storage[ind] == null && ind < capacity) {
+                while ((storage[ind] == null || storage[ind].equals(new Deleted())) && ind < capacity) {
                     ind++;
                 }
             } else {
@@ -204,6 +196,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
             toStop++;
             curs = ind;
         }
+
         //трудоёмкость О(1)
         //память O(1)
         @Override
