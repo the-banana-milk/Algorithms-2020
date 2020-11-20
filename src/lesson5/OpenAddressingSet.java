@@ -49,7 +49,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         }
         return false;
     }
-    
+
     /**
      * Добавление элемента в таблицу.
      *
@@ -61,20 +61,14 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      * но в данном случае это было введено для упрощения кода.
      * && !current.equals(new Deleted())
      */
-    private class Deleted extends Object {
-        private final Object a = null;
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Deleted deleted = (Deleted) o;
-            return Objects.equals(a, deleted.a);
-        }
+    public static class Deleted {
+        private static final Deleted instance = new Deleted();
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(a);
+        public Deleted() {}
+
+        public static Deleted getInstance() {
+            return instance;
         }
     }
 
@@ -83,7 +77,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null && !current.equals(new Deleted())) {
+        while (current != null && current != Deleted.getInstance()) {
             if (current.equals(t)) {
                 return false;
             }
@@ -109,6 +103,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      *
      * Средняя
      */
+    //трудоёмкость О(n)
+    //память O(1)
     @Override
     public boolean remove(Object o) {
         //return super.remove(o);
@@ -124,7 +120,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
             current = storage[index];
         }
         if (current != null) {
-            storage[index] = new Deleted();
+            storage[index] = Deleted.getInstance();
             size--;
             return true;
         }
@@ -162,7 +158,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
             if (lastRet < 0) {
                 throw new IllegalStateException();
             }
-            storage[lastRet] = new Deleted();
+            storage[lastRet] = Deleted.getInstance();
             size--;
             curs = lastRet;
             lastRet = -1;
@@ -184,13 +180,13 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         private void findIndOfNext() {
             int ind = curs;
             if (toStop == 0 && curs == 0 && lastRet == -1) {
-                while ((storage[ind] == null || storage[ind].equals(new Deleted())) && ind < capacity) {
+                while (ind < capacity && (storage[ind] == null || storage[ind] == Deleted.getInstance())) {
                     ind++;
                 }
             } else {
                 do {
                     ind++;
-                } while (ind < capacity && (storage[ind] == null || storage[ind].equals(new Deleted())));
+                } while (ind < capacity && (storage[ind] == null || storage[ind] == Deleted.getInstance()));
             }
             if (lastRet < 0) toStop--;
             toStop++;

@@ -16,6 +16,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     private static class Node {
         Map<Character, Node> children = new LinkedHashMap<>();
         Character nameOfNode;
+        Node par;
     }
 
     private Node root = new Node();
@@ -53,6 +54,13 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         return findNode(element) != null;
     }
 
+    public static void main(String[] args) {
+        Trie a = new Trie();
+        a.add("ghjk");
+        a.add("ghi");
+        a.add("thjk");
+        a.add("dvbn;");
+    }
     @Override
     public boolean add(String element) {
         Node current = root;
@@ -67,6 +75,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                 modified = true;
                 Node newChild = new Node();
                 newChild.nameOfNode = pevLetter;
+                newChild.par = current;
                 current.children.put(character, newChild);
                 pevLetter = character;
                 current = newChild;
@@ -183,5 +192,4 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             return findAllStrings.get(lastIter).toString();
         }
     }
-
 }
